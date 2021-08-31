@@ -489,11 +489,9 @@ class LawsuitFactory():
         :return: All Folders generated
         :rtype: list
         """
-        folders_list = list()
         for _ in range(0, total_folders):
             folder_obj = self.generate_full_folder()
-            folders_list.append(folder_obj)
-        return folders_list
+            yield folder_obj
 
     def dispatch_court(self, segment: str, state: str) -> str:
         """Identifica a forma escrita do tribunal baseado no segmento e no estado.
