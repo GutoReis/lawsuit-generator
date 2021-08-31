@@ -22,8 +22,8 @@ class FakeLawsuit():
         self.audition_list = kwargs.get("audition", [])
         self.progress_list = kwargs.get("progress", [])
         self.appendix_list = kwargs.get("appendix", [])
-        self.publication_list = kwargs.get("publications", [])
-        self.classification_list = kwargs.get("classifications", [])
+        self.publication_list = kwargs.get("publication", [])
+        self.classification_list = kwargs.get("classification", [])
 
         self.part_active_list = kwargs.get("part_active", [])
         self.part_active_lawyer_list = kwargs.get("part_active_lawyer", [])

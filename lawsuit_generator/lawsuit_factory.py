@@ -3,7 +3,7 @@ import json
 
 from faker import Faker
 
-from fake_lawsuit import FakeFolder, FakeLawsuit
+from lawsuit_generator.fake_lawsuit import FakeFolder, FakeLawsuit
 
 
 class LawsuitFactory():
@@ -109,7 +109,7 @@ class LawsuitFactory():
         :return: randomic header dictionary
         :rtype: dict
         """
-        with open("court_state_relation.json", "r") as json_states:
+        with open("./lawsuit_generator/court_state_relation.json", "r") as json_states:
                 states_dict = json.load(json_states)
         if "TRT" in court_house:
             state_name = "Trabalhista"
@@ -302,6 +302,36 @@ class LawsuitFactory():
             audition_list.append(audition_dict)
         return audition_list
 
+    def generate_classification(self, source: list, event_type):
+        classifications_list = list()
+        classification_names_list = ["classificacao_um", "classificacao_dois",
+                                     "classificacao_cinco", "classificacao_quatro"]
+        total_itens = len(source)
+        percentage = 20
+        max_classifications = round((total_itens*percentage)/100)
+        total_classifications = self.fake.random_int(min=0, max=max_classifications)
+        for _ in range(0, total_classifications):
+            source_obj = self.fake.random_choices(elements=source, length=1)[0]
+            classification_name = self.fake.random_choices(elements=classification_names_list,
+                                                           length=1)[0]
+            #NOTE Subtracted by 10 to have something left as an end
+            start_position = total_classifications = self.fake.random_int(min=0, max=len(source_obj["publicacao"])-10)
+            end_position = total_classifications = self.fake.random_int(min=start_position, max=len(source_obj["publicacao"]))
+            term = source_obj["publicacao"][start_position:end_position]
+            classification_obj = {
+                "evento_obj": source_obj,
+                "tipo_evento": event_type,
+                "classificacao": classification_name,
+                "ativo": True,
+                "match": {
+                    "inicio": start_position,
+                    "fim": end_position,
+                    "termo": term
+                }
+            }
+            classifications_list.append(classification_obj)
+        return classifications_list        
+
     def generate_status(self) -> str:
         """Generate a fake status classification for lawsuit.
 
@@ -343,6 +373,7 @@ class LawsuitFactory():
             publication_list = list()
             petition_list = list()
             audition_list = list()
+            classification_list = list()
             part_active_list = list()
             part_active_lawyer_list = list()
             part_passive_list = list()
@@ -359,10 +390,16 @@ class LawsuitFactory():
             part_passive_lawyer_list = [self.generate_part(lawyer=True) for x in range(0, self.fake.random_int(min=0, max=5))]
             part_others_list = [self.generate_part() for x in range(0, self.fake.random_int(min=0, max=5))]
             
-            parts_name = [x["nome"] for x in part_active_list]
-            parts_name += [x["nome"] for x in part_passive_list]
-            lawyers_name = [x["nome"] for x in part_active_lawyer_list]
-            lawyers_name += [x["nome"] for x in part_passive_lawyer_list]
+            parts_name = list()
+            if part_active_list:
+                parts_name += [x["nome"] for x in part_active_list if x]
+            if part_passive_list:
+                parts_name += [x["nome"] for x in part_passive_list if x]
+            lawyers_name = list()
+            if part_active_lawyer_list:
+                lawyers_name += [x["nome"] for x in part_active_lawyer_list if x]
+            if part_passive_lawyer_list:
+                lawyers_name += [x["nome"] for x in part_passive_lawyer_list if x]
             publication_list = self.generate_publication(min_year=number_info_dict["year"],
                                                          lawsuit_number=number_info_dict["complete"],
                                                          law_class=header.get("classe", ""),
@@ -377,6 +414,7 @@ class LawsuitFactory():
                                                    total_petition=self.fake.random_int(min=0, max=30))
             audition_list = self.generate_auditions(min_year=number_info_dict["year"],
                                                     total_auditions=self.fake.random_int(min=0, max=30))
+            classification_list = self.generate_classification(publication_list, "publicacao")
         fake_obj = FakeLawsuit(lawsuit_number=number_info_dict["complete"],
                                year=number_info_dict["year"],
                                segment=number_info_dict["segment"],
@@ -397,6 +435,7 @@ class LawsuitFactory():
                                progress=progress_list,
                                appendix=appendix_list,
                                publication=publication_list,
+                               classification=classification_list,
                                part_active=part_active_list,
                                part_active_lawyer=part_active_lawyer_list,
                                part_passive=part_passive_list,
@@ -419,7 +458,7 @@ class LawsuitFactory():
             appeals = list()
             recourses = list()
             attached = list()
-            dependents = list(0)
+            dependents = list()
         else:
             main_number = main_lawsuit.lawsuit_number
             book_name = f"{main_number}: PROCESSO GERADO"
