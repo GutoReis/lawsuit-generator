@@ -12,12 +12,14 @@ class FakeLawsuit():
         self.is_secret = kwargs.get("is_secret", None)
         self.header = kwargs.get("header", None)
 
+        #LAWSUIT TYPE
         self.is_main = kwargs.get("is_main", True)
         self.is_appeal = kwargs.get("is_appeal", False)
         self.is_recourse = kwargs.get("is_recourse", False)
         self.is_attached = kwargs.get("is_attaced", False)
         self.is_dependent = kwargs.get("is_dependent", False)
 
+        #EVENTS
         self.petition_list = kwargs.get("petition", [])
         self.audition_list = kwargs.get("audition", [])
         self.progress_list = kwargs.get("progress", [])
@@ -25,6 +27,7 @@ class FakeLawsuit():
         self.publication_list = kwargs.get("publication", [])
         self.classification_list = kwargs.get("classification", [])
 
+        #PARTS AND LAWYERS
         self.part_active_list = kwargs.get("part_active", [])
         self.part_active_lawyer_list = kwargs.get("part_active_lawyer", [])
         self.part_passive_list = kwargs.get("part_passive", [])
@@ -47,6 +50,8 @@ class FakeLawsuit():
             "is_main": self.is_main,
             "is_appeal": self.is_appeal,
             "is_recourse": self.is_recourse,
+            "is_attached": self.is_attached,
+            "is_dependent": self.is_dependent,
             "petition_list": self.petition_list,
             "audition_list": self.audition_list,
             "progress_list": self.progress_list,
